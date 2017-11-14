@@ -1,0 +1,15 @@
+== Sample Spring Boot Hellowrold
+
+This sample application shows a helloworld message in http://localhost:8080 
+
+It can be built using maven:
+
+----
+mvn package
+----
+
+And run with:
+
+----
+java -jar target/springboot-helloworld-0.0.1.jar
+----
