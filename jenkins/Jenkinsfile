@@ -2,35 +2,35 @@ def appName = "springboot-sample-app"
 def project = ""
 def pom
 node {
-    stage("Initialize") {
+    stage("初始化环境") {
         project = env.PROJECT_NAME
     }
 }
 node("maven") {
-    stage("Checkout") {
+    stage("下载代码") {
         git url: "https://github.com/xiaods/springboot-helloworld.git", branch: "master"
     }
-    stage("Gather buildfacts") {
+    stage("配置依赖库") {
         pom = readMavenPom file: 'pom.xml'
     }
-    stage("Build JAR") {
+    stage("构建应用Jar包") {
         sh "mvn clean package -Popenshift"
         stash name: "jar", includes: "target/app.jar"
     }
 }
 
 node {
-    stage("Build Image") {
+    stage("构建镜像") {
         unstash name: "jar"
         sh "oc start-build ${appName}-docker --from-file=target/app.jar --follow -n ${project}"
     }
-    stage("Deploy") {
+    stage("部署应用") {
         openshiftDeploy deploymentConfig: appName, namespace: project
     }
-    stage("Tag image") {
+    stage("标识应用版本") {
         openshiftTag srcStream: appName, srcTag: "latest", destStream: appName, destTag: pom.version, alias: "false"
     }
-    stage("Print env variables") {
+    stage("显示部署环境") {
         sh "printenv"
     }
 }
